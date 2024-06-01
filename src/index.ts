@@ -4,8 +4,8 @@ import { AppDataSource } from './data-source'
 import express from 'express'
 import cors from 'cors'
 
-import clientesRouter from './controllers/clienteController'
-import authRouter from './controllers/authController'
+import clientesRouter from './controllers/cliente.controller'
+import authRouter from './controllers/auth.controller'
 
 export const app = express()
 
