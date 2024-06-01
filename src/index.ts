@@ -1,14 +1,24 @@
+import 'reflect-metadata'
+import 'dotenv/config'
+import { AppDataSource } from './data-source'
 import express from 'express'
-import clientesRouter from './routes/clientes'
+import cors from 'cors'
 
-const app = express()
+import clientesRouter from './controllers/clienteController'
+import authRouter from './controllers/authController'
 
+export const app = express()
+
+app.use(cors())
 app.use(express.json())
 
-const PORT = 3000
+const PORT = process.env.PORT ?? 3000
+
+app.use('/auth', authRouter)
 
 app.use('/clientes', clientesRouter)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
+  AppDataSource.initialize().catch((error) => console.log(error))
 })
