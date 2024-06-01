@@ -27,32 +27,45 @@ export const getClientes = async (): Promise<CustomResponse<Cliente[]>> => {
   }
 }
 
-export const eliminarCliente = (id: number): CustomResponse<DeleteResult> => {
-  let response: CustomResponse<DeleteResult> = { success: false, status: 500, message: '', data: null }
-  clienteRepository.delete(id).then(
-    (res) => { response = { success: true, status: 200, message: 'Cliente eliminado', data: res } },
-    (err) => { response = { success: false, status: 500, message: err.message.toString(), data: null } }
-  )
-  return response
+export const eliminarCliente = async (id: number): Promise<CustomResponse<DeleteResult>> => {
+  try {
+    await clienteRepository.delete(id)
+    return { success: true, status: 200, message: 'Cliente eliminado', data: null }
+  } catch (err: any) {
+    return { success: false, status: 500, message: err.message.toString(), data: null }
+  }
 }
 
 export const editarCliente = async (user: Cliente, nuevo = false): Promise<CustomResponse<Cliente>> => {
   try {
-    const emailExiste = await clienteRepository.findOneBy({ email: user.email })
-    if (emailExiste != null) {
-      return { success: false, status: 400, message: 'Ya existe un cliente con ese correo', data: null }
+    // Primero se checa si el correo y el celular existen en la BD porque son datos unicos
+    if (user.email !== undefined) {
+      const emailExiste = await clienteRepository.findOneBy({ email: user.email })
+      if (emailExiste !== null && emailExiste.id !== user.id) {
+        return { success: false, status: 400, message: 'Ya existe un cliente con ese correo', data: null }
+      }
     }
-    const celularExiste = await clienteRepository.findOneBy({ phone: user.phone })
-    if (celularExiste != null) {
-      return { success: false, status: 400, message: 'Ya existe un cliente con ese celular', data: null }
+
+    if (user.phone !== undefined) {
+      const celularExiste = await clienteRepository.findOneBy({ phone: user.phone })
+      if (celularExiste !== null && celularExiste.id !== user.id) {
+        return { success: false, status: 400, message: 'Ya existe un cliente con ese celular', data: null }
+      }
     }
+
+    // Si se modifico la contraseña se hace el hasheo
+    if (user.password !== undefined) {
     // Se encripta la contraseña
     // let response: CustomResponse<Cliente> = { success: false, status: 400, message: '', data: null };
-    const hashedPwd = await bcrypt.hash(user.password, 10)
+      const hashedPwd = await bcrypt.hash(user.password, 10)
+      user.password = hashedPwd
+    }
 
-    user.password = hashedPwd
-    const newUser = clienteRepository.create(user)
-    await AppDataSource.manager.save(newUser)
+    const userEntity = clienteRepository.create(user)
+    await AppDataSource.manager.save(userEntity)
+
+    // Se vuelve a hacer el query para enviar todos los datos del cliente, excluyendo la contraseña
+    const newUser = await clienteRepository.findOneBy({ id: userEntity.id })
     return { success: true, status: 200, message: `Cliente ${nuevo ? 'creado' : 'editado'} correctamente`, data: newUser }
     // Enviar respuesta
   } catch (err: any) {

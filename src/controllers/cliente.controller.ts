@@ -1,9 +1,10 @@
 import express, { Request, RequestHandler, Response } from 'express'
-import * as clienteService from '../services/clienteService'
+import * as clienteService from '../services/cliente.service'
 import { Cliente } from '../models/cliente'
-import { isUserNotLogged } from '../middleware/auth.middleware'
+import { isAuthenticated } from '../middleware/auth.middleware'
 import { validationResult } from 'express-validator'
-import { validateUser } from '../middleware/validator.middleware'
+import { validateEditUser, validateUser } from '../middleware/validator.middleware'
+import { AuthRequest } from '../types'
 
 const router = express.Router()
 
@@ -23,30 +24,42 @@ router.post('/agregar', validateUser, (async (req: Request, res: Response) => {
 // la funcion se llama isUserNotLogged
 
 // Ver todos los clientes
-router.get('/', isUserNotLogged, (async (_req: Request, res: Response) => {
+router.get('/', isAuthenticated, (async (_req: Request, res: Response) => {
   const response = await clienteService.getClientes()
   res.status(response.status).json(response)
 }) as RequestHandler)
 
 // Ver un cliente por id
-router.get('/:id', isUserNotLogged, (async (req: Request, res: Response) => {
+router.get('/:id', isAuthenticated, (async (req: Request, res: Response) => {
   const id = Number(req.params.id)
   const response = await clienteService.getCliente(id)
+  console.log(response)
+
   res.status(response.status).json(response)
 }) as RequestHandler)
 
 // Eliminar un cliente
-router.delete('/eliminar/:id', isUserNotLogged, (req, res) => {
+router.delete('/eliminar/:id', isAuthenticated, (async (req: AuthRequest, res) => {
   const id = Number(req.params.id)
-  const response = clienteService.eliminarCliente(id)
-  res.status(response.status).json(response)
-})
+  const response = await clienteService.eliminarCliente(id)
+
+  if (req.user.id === id && response.success) {
+    // Si el usuario eliminado es el mismo al logueado, se elimina su sesión
+    req.user = null
+    res.clearCookie('token')
+    res.json('Logged out')
+  } else {
+    res.status(response.status).json(response)
+  }
+}) as RequestHandler)
 
 // Editar los datos de un cliente
-router.put('/editar', isUserNotLogged, validateUser, (async (req: Request, res: Response) => {
+router.put('/editar', isAuthenticated, validateEditUser, (async (req: Request, res: Response) => {
   const result = validationResult(req)
+
   if (result.isEmpty()) {
     const cliente: Cliente = req.body
+
     const response = await clienteService.editarCliente(cliente)
     res.status(response.status).json(response)
   } else {
