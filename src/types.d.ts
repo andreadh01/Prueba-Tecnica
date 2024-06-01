@@ -1,10 +1,6 @@
-export interface Cliente {
-  id: string
-  name: string
-  email: string
-  password: string
-  phone: string
+export interface CustomResponse<T> {
+  success: boolean
+  message: string
+  status: number
+  data: T | null
 }
-
-export type NuevoCliente = Omit<Cliente, 'id'>
-
