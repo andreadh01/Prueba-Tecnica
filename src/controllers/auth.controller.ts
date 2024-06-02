@@ -14,6 +14,18 @@ router.post('/login', isNotAuthenticated, (async (req, res) => {
   res.status(response.status).json(response)
 }) as RequestHandler)
 
+// Validar token
+router.get('/validarToken', (req: AuthRequest, res) => {
+  const token = req.header('Cookie')?.replace('token=', '')
+  if (token != null){
+    const result = authService.isValidToken(token)
+    res.json(result)
+  } else {
+    res.json({ success: false, message:'El usuario no ha iniciado sesión' })
+  }
+  
+})
+
 // Cerrar sesión
 router.post('/logout', isAuthenticated, (req: AuthRequest, res) => {
   req.user = null

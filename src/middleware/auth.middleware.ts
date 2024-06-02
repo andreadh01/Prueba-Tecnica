@@ -1,35 +1,33 @@
 import { RequestHandler } from 'express'
-import jwt from 'jsonwebtoken'
 import { AuthRequest } from '../types'
+import { isValidToken } from '../services/auth.service'
 
 export const isAuthenticated: RequestHandler = (req: AuthRequest, res, next) => {
   const token = req.header('Cookie')?.replace('token=', '')
   if (token != null) {
-    try {
-      const decode = jwt.verify(token, process.env.JWT_SECRET_KEY as string)
-      // Si la función arroja un error se irá al catch
-      req.user = decode
+    const result = isValidToken(token)
+    if (result.success) {
+      req.user = result.data
       next()
-    } catch (err: any) {
-      res.json(err.message.toString())
+    } else {
+      res.json(result)
     }
   } else {
-    res.json('Not loogged in')
+    res.json({ success: false, message:'El usuario no ha iniciado sesión' })
   }
 }
 
-export const isNotAuthenticated: RequestHandler = (req, res, next) => {
+export const isNotAuthenticated: RequestHandler = (req: AuthRequest, res, next) => {
   const token = req.header('Cookie')?.replace('token=', '')
   if (token == null) {
     next()
   } else {
-    try {
-      jwt.verify(token, process.env.JWT_SECRET_KEY as string)
-      // Si la función arroja un error se irá al catch
-      res.json('Loogged in')
-    } catch (err: any) {
-      res.json(err.message.toString())
+    const result = isValidToken(token)
+    if (result.success) {
+      req.user = result.data
+      res.json({ success: false, message:'El usuario tiene una sesión iniciada' })
+    } else {
+      res.json(result)
     }
-
   }
 }

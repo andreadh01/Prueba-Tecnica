@@ -41,3 +41,13 @@ export const login = async (email: string, plainPassword: string): Promise<Custo
     return { success: false, status: 500, message: err.message.toString(), data: null }
   }
 }
+
+export const isValidToken = (token: string): CustomResponse<string | jwt.JwtPayload> => {
+  try {
+    const decode = jwt.verify(token, process.env.JWT_SECRET_KEY as string)
+    // Si la función arroja un error se irá al catch
+    return { success: true, status: 200, message: 'El token es válido', data: decode }
+  } catch (err: any) {
+    return { success: false, status: 40, message: 'El token no es válido', data: null }
+  }
+}
