@@ -1,22 +1,32 @@
 import { Navigate } from "react-router-dom"
 import { checkToken } from "../helper/checkToken"
-import { ReactNode, useEffect, useState } from "react"
+import { ReactNode, useContext, useEffect, useState } from "react"
+import { Loader } from "./Loader"
+import { CurrentUserContext } from "../providers/CurrentUserProvider"
 
 interface Props {
     children?: ReactNode
 }
 
 export const AuthRoute = ({ children }: Props) => {
-    const [ isAuthenticated, setIsAuthenticated ] = useState<boolean | null>(false)
+    const [ isAuthenticated, setIsAuthenticated ] = useState<boolean | null>(null)
+    const { setUsuario } = useContext(CurrentUserContext)
 
-    //useEffect(() => {   
-        //getToken();
-    //  }, []);
+    useEffect(() => {   
+        setTimeout(() => {
+            getToken();
 
-    //async function getToken() {
-        //const result = await checkToken()
-        //setIsAuthenticated(result);
-    //};
+        }, 1000)
+        
+     }, []);
 
-    return <> { isAuthenticated ? <Navigate to='/' replace /> : children } </>
+    async function getToken() {
+        const result = await checkToken()
+        setIsAuthenticated(result.success);
+        if (result.success) {
+            setUsuario(result.data)
+        }
+    };
+
+    return <> { isAuthenticated == null  ? <Loader/> : isAuthenticated ? <Navigate to='/' replace /> : children } </>
 }
