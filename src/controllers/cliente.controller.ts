@@ -16,7 +16,7 @@ router.post('/agregar', validateUser, (async (req: Request, res: Response) => {
     const response = await clienteService.agregarCliente(cliente)
     res.json(response)
   } else {
-    res.send({ success: false, message: result.array() })
+    res.json({ success: false, message: result.array() })
   }
 }) as RequestHandler)
 
@@ -62,7 +62,7 @@ router.put('/editar', isAuthenticated, validateEditUser, (async (req: Request, r
     const response = await clienteService.editarCliente(cliente)
     res.json(response)
   } else {
-    res.send({ success: false, message: result.array() })
+    res.json({ success: false, message: result.array() })
   }
 }) as RequestHandler)
 

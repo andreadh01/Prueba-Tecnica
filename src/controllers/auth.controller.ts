@@ -34,8 +34,15 @@ router.get('/validarToken', (req: AuthRequest, res) => {
 // Cerrar sesión
 router.post('/logout', isAuthenticated, (req: AuthRequest, res) => {
   req.user = null
-  res.clearCookie('token')
-  res.send({ success: true, message: 'User logged out'})
+  try {
+    res.clearCookie('token')
+    res.json({ success: true, message: 'User logged out'})
+  } catch {
+    res.json({ success: false, message: 'Ocurrió un error al intentar cerrar sesión'})
+
+  }
+  
+
 })
 
 export default router
