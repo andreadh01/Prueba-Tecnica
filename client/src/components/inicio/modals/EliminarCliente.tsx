@@ -21,22 +21,11 @@ export const EliminarCliente = ({ clienteId, close}: CustomModalProps) => {
               }
         })
         if (clienteId === usuario.id) {
-            logoutUser()
+            navigate("/login")
         } else {
             getClientes()
             close()
         }
-    };
-
-    const logoutUser = () => {
-        fetch(logout,
-            {method:"POST",
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-              }
-        }).then((_) => navigate("/login"))
-        
     };
     
     return ( 
