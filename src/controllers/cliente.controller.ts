@@ -14,9 +14,9 @@ router.post('/agregar', validateUser, (async (req: Request, res: Response) => {
   if (result.isEmpty()) {
     const cliente: Cliente = req.body
     const response = await clienteService.agregarCliente(cliente)
-    res.status(response.status).json(response)
+    res.json(response)
   } else {
-    res.send({ errors: result.array() })
+    res.send({ success: false, message: result.array() })
   }
 }) as RequestHandler)
 
@@ -26,16 +26,15 @@ router.post('/agregar', validateUser, (async (req: Request, res: Response) => {
 // Ver todos los clientes
 router.get('/', isAuthenticated, (async (_req: Request, res: Response) => {
   const response = await clienteService.getClientes()
-  res.status(response.status).json(response)
+  res.json(response)
 }) as RequestHandler)
 
 // Ver un cliente por id
 router.get('/:id', isAuthenticated, (async (req: Request, res: Response) => {
   const id = Number(req.params.id)
   const response = await clienteService.getCliente(id)
-  console.log(response)
 
-  res.status(response.status).json(response)
+  res.json(response)
 }) as RequestHandler)
 
 // Eliminar un cliente
@@ -47,9 +46,9 @@ router.delete('/eliminar/:id', isAuthenticated, (async (req: AuthRequest, res) =
     // Si el usuario eliminado es el mismo al logueado, se elimina su sesión
     req.user = null
     res.clearCookie('token')
-    res.json('Logged out')
+    res.json({ success: true, message: 'User logged out' })
   } else {
-    res.status(response.status).json(response)
+    res.json(response)
   }
 }) as RequestHandler)
 
@@ -59,11 +58,11 @@ router.put('/editar', isAuthenticated, validateEditUser, (async (req: Request, r
 
   if (result.isEmpty()) {
     const cliente: Cliente = req.body
-
+    
     const response = await clienteService.editarCliente(cliente)
-    res.status(response.status).json(response)
+    res.json(response)
   } else {
-    res.send({ errors: result.array() })
+    res.send({ success: false, message: result.array() })
   }
 }) as RequestHandler)
 

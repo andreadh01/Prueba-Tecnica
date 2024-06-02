@@ -9,9 +9,14 @@ router.post('/login', isNotAuthenticated, (async (req, res) => {
   const { email, password } = req.body
   const response = await authService.login(email, password)
   if (response.data != null) {
-    res.cookie('token', response.data.token)
+    res.cookie('token', response.data.token,{
+      httpOnly: false,
+      secure: false, 
+      maxAge: 24 * 60 * 60 * 1000,
+      sameSite: 'lax' 
+    })
   }
-  res.status(response.status).json(response)
+  res.json(response)
 }) as RequestHandler)
 
 // Validar token
@@ -21,7 +26,7 @@ router.get('/validarToken', (req: AuthRequest, res) => {
     const result = authService.isValidToken(token)
     res.json(result)
   } else {
-    res.json({ success: false, message:'El usuario no ha iniciado sesión' })
+    res.json({ success: false, message: 'El usuario no ha iniciado sesión' })
   }
   
 })
@@ -30,7 +35,7 @@ router.get('/validarToken', (req: AuthRequest, res) => {
 router.post('/logout', isAuthenticated, (req: AuthRequest, res) => {
   req.user = null
   res.clearCookie('token')
-  res.json('Logged out')
+  res.send({ success: true, message: 'User logged out'})
 })
 
 export default router
