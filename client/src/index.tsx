@@ -1,10 +1,11 @@
-import ReactDOM from 'react-dom/client';
 import './index.css';
+import ReactDOM from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Inicio from './pages/Inicio';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
 import { AnimatePresence } from 'framer-motion';
+import { CurrentUserProvider } from './providers/CurrentUserProvider';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -27,6 +28,8 @@ const router = createBrowserRouter([
 
 root.render(
   <AnimatePresence>
-    <RouterProvider router={router} />
+    <CurrentUserProvider>
+      <RouterProvider router={router} />
+    </CurrentUserProvider>
   </AnimatePresence>
 );
