@@ -10,7 +10,6 @@ npm i
 ```
 Crear un archivo *.env* con las siguientes variables:
 ```sh
-PORT=4800 # Será el puerto donde correrá la API
 MYSQL_USER='root' # El usuario de mysql
 MYSQL_PASSWORD='' # La contraseña de mysql
 DATABASE='prueba_tecnica' # El nombre de la base de datos
@@ -20,3 +19,13 @@ Corre el servidor
 ```sh
 npm run dev
 ```
+Instala las dependencias del cliente
+```sh
+cd client
+npm i
+```
+Corre el cliente
+```sh
+npm start
+```
+Abre http://localhost:3000 en tu navegador para usar la página
