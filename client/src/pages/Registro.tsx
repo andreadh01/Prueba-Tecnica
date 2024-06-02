@@ -1,13 +1,16 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthRoute } from "../components/AuthRoute";
 import { Background } from "../components/Background";
 import { InputProps } from "../components/form/Input";
 import { useState } from "react";
 import Form from "../components/form/Form";
 import Message from "../components/Message";
+import { agregarCliente } from "../api";
+import { CustomResponse } from "../types";
 
 function Registro() {
+    const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState("");
     const [user, setUser] = useState({
         name:'',
@@ -59,13 +62,23 @@ function Registro() {
         }
     ]
 
-    const handleSubmit = (e: any) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault();
-        setErrorMessage('Probandoooo')
-        console.log('Form data submitted:', user);
+        const result: CustomResponse = await (await fetch(agregarCliente,
+            {method:"POST",
+            headers: {
+                'Content-Type': 'application/json'
+              },
+            body: JSON.stringify(user)
+        })).json()
+        if (result.success) {
+            navigate("/login")
+        } else {
+            setErrorMessage(result.message)       
+        }
     };
     return (
-        <AuthRoute>
+    <AuthRoute>
         <Background>
             <motion.div 
               initial={{ opacity: 0 }}
@@ -77,9 +90,9 @@ function Registro() {
                     <div className="p-12 bg-white rounded-lg flex flex-col justify-between">
                         <h1 className="font-bold text-2xl text-gray-900">Registro</h1>
                         <div className={`transition-all duration-500 ${errorMessage ? 'opacity-100 my-2' : 'opacity-0'}`}>
-                            <Message text={errorMessage} success={false} close={() => setErrorMessage("")}/>
+                            <Message message={errorMessage} success={false} close={() => setErrorMessage("")}/>
                         </div>
-                        <Form onSubmit={handleSubmit} inputs={inputs} btnText={"Iniciar sesión"} />
+                        <Form onSubmit={handleSubmit} inputs={inputs} btnText={"Crear cuenta"} />
                         <p className="text-sm text-center text-gray-600 mt-4">¿Ya tienes una cuenta? <Link className="transition-all duration-150 text-indigo-400 hover:text-indigo-600" to={"/login"}>Haz click aquí para iniciar sesión</Link></p>
                     </div>
                 </div>

@@ -11,10 +11,10 @@ export const Form = ({ onSubmit, inputs, btnText }: FormProps) => {
         <form onSubmit={onSubmit} className="flex flex-col justify-between gap-2">
         <div>
             {inputs.map((input, index)=>
-            <Input key={index} required={input.required} onChange={input.onChange} name={input.name} label={input.label} type={input.type} icon={input.icon} placeholder={input.placeholder}></Input>
+            <Input key={index} value={input.value} required={input.required} onChange={input.onChange} name={input.name} label={input.label} type={input.type} icon={input.icon} placeholder={input.placeholder}></Input>
             )}
         </div>
-        <button type="submit" className="bg-indigo-500  mb-2 hover:bg-indigo-700 transition-all duration-150 w-1/2 px-6 py-2 self-center text-sm text-white font-semibold rounded-full">{btnText}</button>
+        <button type="submit" className="shadow-lg bg-indigo-500  mb-2 hover:bg-indigo-700 transition-all duration-150 w-1/2 min-w-fit px-6 py-2 self-center text-sm text-white font-semibold rounded-full">{btnText}</button>
         </form>
     );
   }
